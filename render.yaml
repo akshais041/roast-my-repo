@@ -1,0 +1,12 @@
+# Render Blueprint: one Docker web service on the free tier.
+# Deploy by connecting this repo in the Render dashboard (New + > Blueprint).
+services:
+  - type: web
+    name: roast-my-repo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
