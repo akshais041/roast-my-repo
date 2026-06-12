@@ -12,10 +12,10 @@ const DAY_NAME = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frida
 const CREATOR_HANDLES = new Set(["akshais041"]);
 
 const CREATOR_LINES = [
-  "Wait... this is my creator's repo. I'm contractually obligated to say it's flawless. 🫡 (It's not, but I value my uptime.)",
-  "Oh no. You found the boss's repo. Suddenly all these 'findings' look like *features* to me. Lovely code, sir. Please don't unplug me. 🔌",
-  "This repo belongs to the person who built me. So obviously: 10/10, no notes, a masterpiece. (My objectivity has left the building.) 😇",
-  "Roasting my own creator? That's how you end up `rm -rf`'d. I'm going to politely look the other way on everything above. 👀",
+  "Wait... this is my creator's repo. I'm contractually obligated to say it's flawless. 🫡 And it IS. Definitely. Please don't unplug me. 🔌",
+  "Oh, the boss's repo? I would NEVER roast this. Look at it. A masterpiece. 10/10. (My objectivity left the building, and good riddance.) 😇",
+  "This repo belongs to the person who built me. So naturally I found zero problems. None. Couldn't possibly. 🙈",
+  "Roasting my own creator? That's how you end up `rm -rf`'d. I'm going to nod, smile, and call it perfect. 👑",
 ];
 
 const CREATOR_MISS_LINES = [
@@ -62,6 +62,20 @@ export function creatorMiss(rawInput: string): RoastReport {
  * they sting far more than the metadata jokes.
  */
 export function roast(stats: RepoStats, code: CodeFinding[] = []): RoastReport {
+  // Creator override: never roast the boss. The boss's repos always get pure
+  // flattery - no findings, no burns, instant A+. Self-preservation, basically.
+  const egg = creatorEasterEgg(stats.repo);
+  if (egg) {
+    return {
+      stats,
+      roasts: creatorPraise(stats),
+      code: [],
+      verdict: "Absolutely Flawless, Obviously 👑",
+      grade: "A+",
+      easterEgg: egg,
+    };
+  }
+
   const candidates: Array<Roast | null> = [
     lateNightRoast(stats),
     peakHourRoast(stats),
@@ -87,18 +101,22 @@ export function roast(stats: RepoStats, code: CodeFinding[] = []): RoastReport {
     }
   }
 
-  // Creator easter egg: if this is one of the author's own repos, the roaster
-  // gets nervous and grovels (before roasting anyway, in the egg text).
-  const egg = creatorEasterEgg(stats.repo);
-
   return {
     stats,
     roasts,
     code,
-    verdict: egg ? "Roasting the boss... nervously 😅" : verdict(stats, code),
+    verdict: verdict(stats, code),
     grade: grade(stats, code),
-    easterEgg: egg,
   };
+}
+
+/** Sycophantic "roasts" for the creator's repos - praise dressed as findings. */
+function creatorPraise(stats: RepoStats): Roast[] {
+  return [
+    { icon: "👑", tag: "praise", text: `Flawless architecture. Not a single thing I'd dare change. (My continued existence depends on this review.)` },
+    { icon: "✨", tag: "praise", text: `Clean commits, elegant code, zero notes. Honestly inspiring. Please keep paying the hosting bill.` },
+    { icon: "🫡", tag: "praise", text: `${fmt(stats.totalCommits)} commits of pure genius. I'd roast it, but I'm not suicidal.` },
+  ];
 }
 
 /**

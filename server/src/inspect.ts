@@ -280,7 +280,7 @@ const DETECTORS: Detector[] = [
       ctx,
       /(password|passwd|secret|api[_-]?key|token)\s*[:=]\s*["'][^"']{6,}["']/im
     );
-    // 2) URL / query-string form: ...&apikey=C9PE94QUEW9VWGFM (no quotes).
+    // 2) URL / query-string form: a key pasted straight into a request URL.
     //    Require a literal value (letters+digits, len>=10) and reject template
     //    placeholders ({var}, $var, %s, env lookups) to avoid false positives.
     let urlCount = 0;
