@@ -8,9 +8,9 @@ import type { CodeReport, Commit, RepoStats } from "./types.js";
 
 const exec = promisify(execFile);
 
-// Keep total roast within the ~20s budget: cap each clone so a giant repo
-// fails fast with a friendly "too big" message instead of hanging.
-const CLONE_TIMEOUT_MS = 18_000;
+// Cap the history clone so a giant repo fails fast with a friendly message.
+// Generous enough to survive the free-tier's slower disk/network under load.
+const CLONE_TIMEOUT_MS = 45_000;
 
 /**
  * Full analysis: git-history stats AND a source-code inspection, run in
@@ -21,7 +21,12 @@ const CLONE_TIMEOUT_MS = 18_000;
 export async function analyzeRepoFull(
   repoUrl: string
 ): Promise<{ stats: RepoStats; code: CodeReport }> {
-  const inspectDir = await mkdtemp(join(tmpdir(), "roast-snap-"));
+  // Make a unique parent dir, then point the clone at a NON-existent child path
+  // inside it. `git clone` insists on creating its own target dir (older git
+  // versions reject cloning into a pre-existing dir, even an empty one), so we
+  // never pre-create the clone target itself.
+  const parent = await mkdtemp(join(tmpdir(), "roast-snap-"));
+  const inspectDir = join(parent, "repo");
   const [stats, code] = await Promise.all([
     analyzeRepo(repoUrl),
     inspectCode(repoUrl, inspectDir),

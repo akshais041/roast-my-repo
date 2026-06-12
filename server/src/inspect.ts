@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { readFile, rm, stat } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 import type { CodeFinding, CodeReport } from "./types.js";
 
@@ -41,7 +41,7 @@ export async function inspectCode(repoUrl: string, dir: string): Promise<CodeRep
     await exec(
       "git",
       ["clone", "--depth", "1", "--single-branch", "--no-tags", repoUrl, dir],
-      { timeout: 18_000, maxBuffer: 1024 * 1024 * 64 }
+      { timeout: 45_000, maxBuffer: 1024 * 1024 * 64 }
     );
 
     const ctx = await scan(dir);
@@ -55,7 +55,8 @@ export async function inspectCode(repoUrl: string, dir: string): Promise<CodeRep
   } catch {
     return { available: false, fileCount: 0, language: "unknown", findings: [] };
   } finally {
-    await rm(dir, { recursive: true, force: true });
+    // dir is <tmp-parent>/repo; remove the whole parent so nothing leaks.
+    await rm(dirname(dir), { recursive: true, force: true });
   }
 }
 
