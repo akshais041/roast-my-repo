@@ -157,13 +157,35 @@ function lateNightRoast(s: RepoStats): Roast | null {
 function peakHourRoast(s: RepoStats): Roast | null {
   if (!s.totalCommits) return null;
   const h = s.peakHour;
-  if (h >= 0 && h < 6) {
-    return { icon: "☕", tag: "schedule", text: `Your most productive hour is ${HOUR_LABEL(h)}. Please, for the love of git, go to bed.` };
+  const when = HOUR_LABEL(h);
+
+  // Map peak commit hour to what most people are actually doing then.
+  if (h >= 0 && h < 5) {
+    // Dead of night - everyone else is asleep.
+    return { icon: "🌃", tag: "schedule", text: `Your peak commit hour is ${when}. The rest of the world is asleep. Touch some grass. Or a pillow.` };
   }
-  if (h >= 9 && h < 12) {
-    return { icon: "🌅", tag: "schedule", text: `Peak commit hour: ${HOUR_LABEL(h)}. A functioning member of society. Suspicious.` };
+  if (h >= 5 && h < 8) {
+    // Early morning - before most people are even up.
+    return { icon: "🌅", tag: "schedule", text: `You ship most at ${when}. Up before the sun and the standup. Disgustingly productive.` };
   }
-  return { icon: "⏰", tag: "schedule", text: `You do your best work at ${HOUR_LABEL(h)}. Everyone else calls that "lunch."` };
+  if (h >= 8 && h < 12) {
+    // Standard morning work hours.
+    return { icon: "☕", tag: "schedule", text: `Peak commit hour: ${when}. Coffee in hand, fresh and dangerous. A functioning member of society. Suspicious.` };
+  }
+  if (h >= 12 && h < 14) {
+    // Lunch - the one place "lunch" actually belongs.
+    return { icon: "🥪", tag: "schedule", text: `You commit most at ${when} - straight through lunch. Who needs food when you have a green squares addiction?` };
+  }
+  if (h >= 14 && h < 18) {
+    // Afternoon grind.
+    return { icon: "⏰", tag: "schedule", text: `Peak output at ${when}. The post-lunch afternoon grind. Powered by the fear of an empty PR queue.` };
+  }
+  if (h >= 18 && h < 22) {
+    // Evening - off the clock, still coding.
+    return { icon: "🌆", tag: "schedule", text: `You do your best work at ${when}. Everyone else clocked out hours ago. Work-life balance? Never heard of her.` };
+  }
+  // 22:00-23:59 - late night.
+  return { icon: "🌙", tag: "schedule", text: `Peak commit hour: ${when}. Prime "just one more fix before bed" territory. It is never just one more fix.` };
 }
 
 function torturedFileRoast(s: RepoStats): Roast | null {
