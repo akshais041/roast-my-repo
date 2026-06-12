@@ -51,7 +51,7 @@ export function App() {
         <input
           value={repo}
           onChange={(e) => setRepo(e.target.value)}
-          placeholder="owner/repo  (e.g. expressjs/express)"
+          placeholder="Drop a GitHub repo. Let's see how bad it is."
           aria-label="GitHub repository"
           autoFocus
         />
